@@ -1,34 +1,37 @@
-import os
-import asyncio
-from telethon import TelegramClient, events
+import os, threading, asyncio
+from flask import Flask, Response
+from telethon import TelegramClient
 from telethon.sessions import StringSession
 
-# Lee las variables de Render (no pongas tu session aquí)
-API_ID = int(os.getenv("API_ID", "37765125"))
-API_HASH = os.getenv("API_HASH", "e07cb9110285ade51f8ee52cda905c8e")
-SESSION_STRING = os.getenv("SESSION")
+app = Flask(__name__)
 
-if not SESSION_STRING:
-    print("❌ ERROR: No pusiste la variable SESSION en Render")
-    exit(1)
+API_ID = int(os.getenv("API_ID"))
+API_HASH = os.getenv("API_HASH")
+SESSION = os.getenv("SESSION")
 
-client = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
+client = TelegramClient(StringSession(SESSION), API_ID, API_HASH)
 
-@client.on(events.NewMessage(pattern=r"\.ping"))
-async def ping(event):
-    await event.edit("🚀 TurboFlix 24/7 ON - Activo!")
+@app.route('/')
+def home():
+    return "ON"
 
-@client.on(events.NewMessage(pattern=r"\.alive"))
-async def alive(event):
-    await event.edit("✅ **TurboFlix Bot**\n🔥 Corriendo 24/7 en Render\n⚡️ Sin caídas")
+@app.route('/stream/<int:chat_id>/<int:msg_id>')
+def stream(chat_id, msg_id):
+    async def get_file():
+        msg = await client.get_messages(chat_id, ids=msg_id)
+        return msg.file
 
-async def main():
-    print("=================================")
-    print("   TurboFlix 24/7 ON")
-    print("=================================")
+    # Esta ruta te da el link directo .mp4
+    return f"Usa este formato para tu reproductor: /watch/{chat_id}/{msg_id}.mp4"
+
+async def start_bot():
     await client.start()
-    print("✅ Cliente conectado!")
+    print("Bot ON")
     await client.run_until_disconnected()
 
+def run_flask():
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    threading.Thread(target=run_flask, daemon=True).start()
+    asyncio.run(start_bot())
