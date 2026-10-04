@@ -1,5 +1,6 @@
 import os, asyncio, threading, requests
 from telethon import TelegramClient, events, Button
+from telethon.sessions import MemorySession
 from flask import Flask, Response
 
 API_ID = int(os.getenv("API_ID"))
@@ -9,30 +10,25 @@ CANAL_DB = -1001571126545
 BASE_URL = os.getenv("RENDER_EXTERNAL_URL", "https://turboflix.onrender.com").rstrip("/")
 
 app = Flask(__name__)
-client = TelegramClient('turbo', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
+client = TelegramClient(MemorySession(), API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 
 @app.route('/')
-def home(): return "TurboFlix Live"
+def home(): return "TurboFlix Live - OK"
 
 @app.route('/watch/<int:mid>')
 def watch(mid):
-    return f"""
-    <html><head><meta name="viewport" content="width=device-width,initial-scale=1">
+    return f"""<html><head><meta name="viewport" content="width=device-width,initial-scale=1">
     <style>body{{margin:0;background:#000}}video{{width:100%;height:100vh}}</style></head>
     <body><video id="v" controls autoplay playsinline></video>
-    <script>
-    fetch('/getlink/{mid}').then(r=>r.text()).then(url=>{{
-        document.getElementById('v').src=url.trim();
-    }})</script></body></html>
-    """
+    <script>fetch('/getlink/{mid}').then(r=>r.text()).then(u=>{{document.getElementById('v').src=u.trim()}})</script>
+    </body></html>"""
 
 @app.route('/getlink/<int:mid>')
 def getlink(mid):
     try:
         r = requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/copyMessage",
             json={{"chat_id": CANAL_DB, "from_chat_id": CANAL_DB, "message_id": mid}}).json()
-        if not r.get('ok'):
-            return f"{BASE_URL}/stream/{mid}"
+        if not r.get('ok'): return f"{BASE_URL}/stream/{mid}"
         file_id = (r['result'].get('document') or r['result'].get('video') or {{}}).get('file_id')
         new_id = r['result']['message_id']
         f = requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/getFile?file_id={file_id}").json()
@@ -66,7 +62,7 @@ async def enviar(e):
     m = re.search(r'file_(\d+)', e.text)
     fid = int(m.group(1))
     msg = await client.get_messages(CANAL_DB, ids=fid)
-    await client.send_file(e.chat_id, msg.media, caption="🎬 La Mujer Rey (2022)",
+    await client.send_file(e.chat_id, msg.media,
         buttons=[[Button.inline("📥 DOWNLOAD", data=f"dl_{fid}"), Button.url("▶️ STREAM MP4", f"{BASE_URL}/watch/{fid}")]])
 
 @client.on(events.CallbackQuery)
@@ -84,7 +80,7 @@ async def guardar(e):
         m = await client.forward_messages(CANAL_DB, e.message)
         await s.delete()
         await client.send_file(e.chat_id, e.message.media,
-            caption=f"✅ ID {m.id}\n🔗 Watch: {BASE_URL}/watch/{m.id}",
+            caption=f"✅ ID {m.id}\nWatch: {BASE_URL}/watch/{m.id}",
             buttons=[[Button.inline("📥 DOWNLOAD", data=f"dl_{m.id}"), Button.url("▶️ STREAM MP4", f"{BASE_URL}/watch/{m.id}")]])
 
 client.run_until_disconnected()
