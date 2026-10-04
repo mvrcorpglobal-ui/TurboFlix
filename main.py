@@ -14,9 +14,9 @@ SESSION = os.getenv("SESSION")
 
 client = TelegramClient(StringSession(SESSION), API_ID, API_HASH)
 
-@client.on(events.NewMessage(outgoing=True, pattern=r"\.ping"))
-print(f"CHAT ID: {event.chat_id}")
-print(f"ID DEL GRUPO ES: {event.chat_id}")
+@client.on(events.NewMessage())
+async def get_group_id(event):
+    print(f"CHAT ID DETECTADO: {event.chat_id} - Texto: {event.text}")
 async def ping(event):
     await event.edit("🚀 TurboFlix 24/7 ON - Conectado!")
 
