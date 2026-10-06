@@ -1,0 +1,28 @@
+{
+  "content": [
+    {
+      "id": "ejemplo-anime-1",
+      "title": "Naruto",
+      "tipo": "anime",
+      "category": "anime",
+      "seasons": [
+        {
+          "number": 1,
+          "episodes": [
+            {"number": 1, "title": "Cap 1", "url": "https://...mp4"},
+            {"number": 2, "title": "Cap 2", "url": "https://...mp4"}
+          ]
+        }
+      ]
+    }
+  ],
+  "top10": [],
+  "coupons": [{"codigo":"VIP50","descuento":50,"activo":true}],
+  "vipPlanes": [{"id":"vip_anual","nombre":"VIP 1 Año - $50","precio":50,"dias":365}],
+  "adConfig": {"link1":"http://action_show_ads_1","link2":"http://action_show_ads_2"},
+  "appConfig": {
+    "textos": {"tituloHome":"TurboFlix Premium"},
+    "disenos": {"colorPrimario":"#FFFFFF","bannerHome":"https://i.imgur.com/klvEoPs.jpeg"},
+    "secciones": [{"id":"movies","visible":true},{"id":"anime","visible":true},{"id":"docs","visible":true}]
+  }
+}
