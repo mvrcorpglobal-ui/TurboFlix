@@ -1,28 +1,39 @@
 {
-  "content": [
-    {
-      "id": "ejemplo-anime-1",
-      "title": "Naruto",
-      "tipo": "anime",
-      "category": "anime",
-      "seasons": [
-        {
-          "number": 1,
-          "episodes": [
-            {"number": 1, "title": "Cap 1", "url": "https://...mp4"},
-            {"number": 2, "title": "Cap 2", "url": "https://...mp4"}
-          ]
-        }
-      ]
-    }
+  "hero": {
+    "title": "Demon Slayer: Kimetsu no Yaiba - Castillo Infinito",
+    "meta": "2025 • Acción • Anime • VIP $50 te da acceso 4K",
+    "img": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1200",
+    "video": "https://test-videos.co.uk/vids/sintel/mp4/h264/720/Sintel_Trailer-720p.mp4",
+    "isVip": false
+  },
+  "vipPlans": [
+    {"name": "VIP $50 De por Vida", "price": 50, "days": 36500, "benefits": "Sin ads, 4K, estrenos"},
+    {"name": "VIP 30 días", "price": 5, "days": 30}
   ],
-  "top10": [],
-  "coupons": [{"codigo":"VIP50","descuento":50,"activo":true}],
-  "vipPlanes": [{"id":"vip_anual","nombre":"VIP 1 Año - $50","precio":50,"dias":365}],
-  "adConfig": {"link1":"http://action_show_ads_1","link2":"http://action_show_ads_2"},
-  "appConfig": {
-    "textos": {"tituloHome":"TurboFlix Premium"},
-    "disenos": {"colorPrimario":"#FFFFFF","bannerHome":"https://i.imgur.com/klvEoPs.jpeg"},
-    "secciones": [{"id":"movies","visible":true},{"id":"anime","visible":true},{"id":"docs","visible":true}]
-  }
-}
+  "coupons": {
+    "TURBO50": 36500,
+    "ADMINVIP": 36500,
+    "FREE7": 7,
+    "WELCOME30": 30
+  },
+  "ads": {
+    "banner": "",
+    "link": "https://tu-link-de-ads.com"
+  },
+  "rows": [
+    {
+      "title": "🔥 Top 10 Hoy",
+      "items": [
+        {
+          "id":"a1",
+          "title":"One Piece - Ep 1110",
+          "img":"https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=300",
+          "video":"",
+          "isVip":true,
+          "anime":{"season":1,"episode":1110}
+        },
+        {
+          "id":"a2",
+          "title":"Solo Leveling T2 Cap 1",
+          "img":"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300",
+          "video":"https://test-videos.co.uk/vids/sintel/mp4
