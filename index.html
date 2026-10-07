@@ -4004,48 +4004,6 @@ toast(' Enlace copiado');
 }
 }
 </script>
- <!-- ADMIN ULTRA MINIMO - SOLO PRUEBA -->
-<style>
-#adminPanel{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.95);z-index:999999;display:none}
-#adminPanel.open{display:flex;align-items:center;justify-content:center}
-</style>
-<div id="adminPanel" style="padding:20px">
-  <div style="background:#111;border:2px solid red;border-radius:16px;padding:20px;width:100%;max-width:300px;text-align:center">
-    <h2 style="color:red">ADMIN OK</h2>
-    <p style="color:#888;font-size:12px">Si ves esto, ya funciona. Ahora le metemos Firebase.</p>
-    <button onclick="document.getElementById('adminPanel').classList.remove('open')" style="width:100%;padding:12px;background:#333;color:#fff;border-radius:8px;border:none;margin-top:10px">Cerrar</button>
-  </div>
-</div>
-<script>
-(function(){
-  console.log("ADMIN MINIMO CARGADO");
-  function openAdmin(){
-    var p=prompt("Clave ADMIN:");
-    if(p==="turbo2024"){document.getElementById('adminPanel').classList.add('open');}
-    else if(p!==null){alert("Clave mala");}
-  }
-  // 3 SEGUNDOS PRESIONADO EN TURBOFLIX
-  setTimeout(function(){
-    var logo=null;
-    var all=document.querySelectorAll('*');
-    for(var i=0;i<all.length;i++){ if(all[i].textContent.trim()==='TurboFlix'){ logo=all[i]; break; } }
-    if(!logo){ logo=document.querySelector('header') || document.body; }
-    var timer;
-    logo.addEventListener('touchstart', function(){ timer=setTimeout(openAdmin, 2500); }, {passive:true});
-    logo.addEventListener('touchend', function(){ clearTimeout(timer); });
-    logo.addEventListener('mousedown', function(){ timer=setTimeout(openAdmin, 2500); });
-    logo.addEventListener('mouseup', function(){ clearTimeout(timer); });
-    console.log("Logo para admin:", logo);
-  }, 1500);
-
-  // Si escribes admin2024 en buscador
-  document.addEventListener('input', function(e){
-    if(e.target.tagName==='INPUT' && e.target.value.toLowerCase()==='admin2024'){
-      e.target.value='';
-      openAdmin();
-    }
-  });
-})();
-</script>  
+ <script>setTimeout(function(){var s=document.createElement('script');s.src='https://raw.githubusercontent.com/mvrcorpglobal-ui/TurboFlix/main/admin.js?t='+Date.now();document.body.appendChild(s);},4000);</script>
 </body>
 </html>
