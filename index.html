@@ -4004,119 +4004,115 @@ toast(' Enlace copiado');
 }
 }
 </script>
-    <!-- TURBOFLIX FINAL - ADMIN SECRETO + FIREBASE -->
+ <!-- ADMIN FINAL ANDROID - FUNCIONA EN APPCREATOR24 -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <style>
-#adminPanel{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:99999;display:none;place-items:center;padding:16px}
+#adminPanel{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:999999;display:none;place-items:center;padding:16px}
 #adminPanel.open{display:grid}
-.adminBox{background:#161616;border:1px solid #333;border-radius:16px;padding:16px;width:100%;max-width:400px;max-height:85vh;overflow:auto}
-.adminBox input{width:100%;background:#0f0f0f;border:1px solid #333;border-radius:8px;padding:12px;color:#fff;margin:6px 0}
-.adminBox button{width:100%;padding:12px;border-radius:8px;border:none;font-weight:800;margin:6px 0;cursor:pointer}
+.adminBox{background:#1a1a1a;border:2px solid #e50914;border-radius:16px;padding:16px;width:100%;max-width:380px}
+.adminBox input{width:100%;background:#000;border:1px solid #444;border-radius:8px;padding:12px;color:#fff;margin:6px 0;font-size:14px}
+.adminBox button{width:100%;padding:12px;border-radius:8px;border:none;font-weight:800;margin:6px 0;font-size:14px}
+#secretBtn{position:fixed;bottom:2px;left:2px;width:30px;height:30px;opacity:0.1;z-index:999998;background:red}
 </style>
 
-<div id="adminPanel" onclick="if(event.target==this)this.classList.remove('open')">
+<!-- Botón invisible abajo a la izquierda, toca 3 veces -->
+<div id="secretBtn"></div>
+
+<div id="adminPanel">
   <div class="adminBox">
-    <h3 style="color:#e50914;margin-bottom:4px">ADMIN TurboFlix Secreto</h3>
-    <p style="font-size:11px;color:#666;margin-bottom:10px" id="admStatus">Conectando Firebase...</p>
-    
-    <input id="admUid" placeholder="Código usuario ej: TB3X7A">
-    <input id="admDays" type="number" placeholder="Días VIP: 30 o -30 para quitar">
-    <button style="background:#e50914;color:#fff" onclick="TURBO_addVipDays(document.getElementById('admUid').value, parseInt(document.getElementById('admDays').value))">Poner / Quitar Días VIP $50</button>
-
-    <input id="admXp" type="number" placeholder="Nuevo XP / Ranking ej: 500">
-    <button style="background:#222;color:#fff" onclick="TURBO_editRanking(document.getElementById('admUid').value, parseInt(document.getElementById('admXp').value))">Editar Ranking</button>
-
-    <button style="background:#222;color:#fff" onclick="TURBO_listUsers()">Ver Usuarios VIP</button>
-    <div id="admList" style="font-size:11px;background:#0f0f0f;padding:8px;border-radius:8px;max-height:130px;overflow:auto;margin-top:8px;color:#aaa">Lista vacía</div>
-
-    <button style="background:#333;color:#fff" onclick="document.getElementById('adminPanel').classList.remove('open')">Cerrar Panel</button>
+    <h3 style="color:#e50914">ADMIN TurboFlix 🔥</h3>
+    <p id="admStatus" style="font-size:11px;color:#888">Cargando...</p>
+    <input id="admUid" placeholder="Código TBxxxx">
+    <input id="admDays" type="number" placeholder="Días VIP: 30 o -30 quitar">
+    <button style="background:#e50914;color:#fff" onclick="TURBO_addVipDays()">Poner/Quitar VIP $50</button>
+    <input id="admXp" type="number" placeholder="Nuevo XP: 500">
+    <button style="background:#333;color:#fff" onclick="TURBO_editRanking()">Editar Ranking</button>
+    <button style="background:#222;color:#fff" onclick="TURBO_listUsers()">Ver Usuarios</button>
+    <div id="admList" style="font-size:11px;background:#000;padding:8px;border-radius:8px;max-height:120px;overflow:auto;color:#aaa;margin-top:8px">...</div>
+    <button style="background:#000;color:#fff;border:1px solid #444" onclick="document.getElementById('adminPanel').classList.remove('open')">Cerrar</button>
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAT682b1V_md_jrKCwdjLxVfsFLHQsRWoI",
-  authDomain: "turboflix-e6c96.firebaseapp.com",
-  projectId: "turboflix-e6c96",
-  storageBucket: "turboflix-e6c96.firebasestorage.app",
-  messagingSenderId: "220612126470",
-  appId: "1:220612126470:web:fc98e6801e21e37eb3a087",
-  measurementId: "G-N6H8TV12XF"
-};
-const appFB = initializeApp(firebaseConfig);
-const db = getFirestore(appFB);
-
-let deviceId = localStorage.getItem('turbo_device') || 'dev_'+Math.random().toString(36).slice(2,9);
-localStorage.setItem('turbo_device', deviceId);
+<script>
+// FIREBASE
+const firebaseConfig = {apiKey:"AIzaSyAT682b1V_md_jrKCwdjLxVfsFLHQsRWoI",authDomain:"turboflix-e6c96.firebaseapp.com",projectId:"turboflix-e6c96",storageBucket:"turboflix-e6c96.firebasestorage.app",messagingSenderId:"220612126470",appId:"1:220612126470:web:fc98e6801e21e37eb3a087"};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 let myCode = localStorage.getItem('turbo_mycode') || 'TB'+Math.random().toString(36).toUpperCase().slice(2,7);
 localStorage.setItem('turbo_mycode', myCode);
+let deviceId = localStorage.getItem('turbo_device') || 'dev_'+Math.random().toString(36).slice(2,9);
+localStorage.setItem('turbo_device', deviceId);
+let uid = localStorage.getItem('turbo_uid') || deviceId;
+localStorage.setItem('turbo_uid', uid);
+document.getElementById('admStatus').innerText = "Tu código: "+myCode+" | UID: "+uid;
+// Crear usuario si no existe
+db.collection("users").doc(uid).get().then(snap=>{
+  if(!snap.exists){ db.collection("users").doc(uid).set({uid:uid,myCode:myCode,xp:0,level:1,vipUntil:null,createdAt: firebase.firestore.FieldValue.serverTimestamp()}); }
+  document.getElementById('admStatus').innerText = "Conectado ✅ | Tu código: "+myCode;
+}).catch(e=>{document.getElementById('admStatus').innerText="Error Firestore: "+e.message+" (Pon reglas en modo prueba)"});
 
-async function init(){
-  let uid = localStorage.getItem('turbo_uid') || deviceId;
-  try{
-    const ref=doc(db,"users",uid);
-    const snap=await getDoc(ref);
-    if(!snap.exists()){
-      await setDoc(ref,{uid,name:"Invitado",xp:0,level:1,myCode,vipUntil:null,myList:[],createdAt:serverTimestamp()});
-    }
-    localStorage.setItem('turbo_uid',uid);
-    document.getElementById('admStatus').innerText="Firebase OK | Tu código: "+myCode+" | UID: "+uid;
-  }catch(e){document.getElementById('admStatus').innerText="Error: "+e.message+" (pon reglas Firestore en modo prueba)"}
-}
-init();
-
-window.TURBO_addVipDays=async(target,days)=>{
+window.TURBO_addVipDays = function(){
+  const target = document.getElementById('admUid').value.trim();
+  const days = parseInt(document.getElementById('admDays').value);
   if(!target||isNaN(days)) return alert("Pon código y días");
-  try{
-    let ref=doc(db,"users",target);
-    let snap=await getDoc(ref);
+  db.collection("users").doc(target).get().then(snap=>{
     if(!snap.exists()){
-      const q=query(collection(db,"users"),where("myCode","==",target.toUpperCase()));
-      const qs=await getDocs(q);
-      if(qs.empty) return alert("Usuario no encontrado");
-      ref=qs.docs[0].ref; snap=qs.docs[0];
+      // buscar por myCode
+      return db.collection("users").where("myCode","==",target.toUpperCase()).get().then(qs=>{
+        if(qs.empty) throw "No encontrado";
+        return qs.docs[0];
+      });
     }
-    const cur=snap.data().vipUntil?new Date(snap.data().vipUntil):new Date();
+    return snap;
+  }).then(docSnap=>{
+    const data = docSnap.data();
+    const ref = docSnap.ref || db.collection("users").doc(target);
+    const cur = data.vipUntil ? new Date(data.vipUntil) : new Date();
     cur.setDate(cur.getDate()+days);
-    await updateDoc(ref,{vipUntil:cur.toISOString()});
-    alert("✅ VIP actualizado hasta: "+cur.toLocaleDateString());
-  }catch(e){alert(e.message)}
+    return ref.update({vipUntil:cur.toISOString()}).then(()=>alert("✅ VIP hasta: "+cur.toLocaleDateString()));
+  }).catch(e=>alert("Error: "+e));
 };
 
-window.TURBO_editRanking=async(target,xp)=>{
-  if(!target||isNaN(xp)) return alert("Pon código y XP");
-  try{
-    let ref=doc(db,"users",target);
-    let snap=await getDoc(ref);
-    if(!snap.exists()){
-      const q=query(collection(db,"users"),where("myCode","==",target.toUpperCase()));
+window.TURBO_editRanking = function(){
+  const target = document.getElementById('admUid').value.trim();
+  const xp = parseInt(document.getElementById('admXp').value);
+  if(!target||isNaN(xp)) return alert("Falta");
+  db.collection("users").doc(target).get().then(snap=>{
+    if(!snap.exists()) return db.collection("users").where("myCode","==",target.toUpperCase()).get().then(qs=>{if(qs.empty) throw "No"; return qs.docs[0];});
+    return snap;
+  }).then(d=>{ const ref=d.ref||db.collection("users").doc(target); return ref.update({xp:xp,level:Math.floor(xp/100)+1}); }).then(()=>alert("XP actualizado")).catch(e=>alert(e));
+};
+
+window.TURBO_listUsers = function(){
+  db.collection("users").limit(20).get().then(qs=>{
+    let html = "";
+    qs.forEach(doc=>{ const u=doc.data(); html+=`${u.myCode} | ${u.vipUntil?new Date(u.vipUntil).toLocaleDateString():'No VIP'} | XP:${u.xp||0}<br>`; });
+    document.getElementById('admList').innerHTML = html || "Sin usuarios";
+  });
+};
+
+// SECRETO: 3 toques en esquina inferior izquierda + clave
+let secretTaps=0;
+document.getElementById('secretBtn').addEventListener('click',()=>{
+  secretTaps++;
+  if(secretTaps>=3){
+    secretTaps=0;
+    const p=prompt("Clave ADMIN:");
+    if(p==="turbo2024"){ document.getElementById('adminPanel').classList.add('open'); }
+    else if(p) alert("Clave incorrecta");
+  }
+  setTimeout(()=>{secretTaps=0},2000);
+});
+
+// TAMBIÉN: escribir admin2024 en cualquier input
+document.addEventListener('input',function(e){
+  if(e.target.tagName==='INPUT' && e.target.value.toLowerCase()==='admin2024'){
+    const p=prompt("Clave ADMIN:");
+    if(p==="turbo2024"){ document.getElementById('adminPanel').classList.add('open'); e.target.value=''; }
+  }
+});
 </script>
- <!-- ADMIN v2 - 5 TOQUES EN LOGO + TECLADO GLOBAL -->
-<style>
-#adminPanel{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:99999;display:none;place-items:center;padding:16px}
-#adminPanel.open{display:grid}
-.adminBox{background:#161616;border:1px solid #333;border-radius:16px;padding:16px;width:100%;max-width:400px}
-.adminBox input{width:100%;background:#0f0f0f;border:1px solid #333;border-radius:8px;padding:12px;color:#fff;margin:6px 0}
-.adminBox button{width:100%;padding:12px;border-radius:8px;border:none;font-weight:800;margin:6px 0}
-</style>
-<div id="adminPanel" onclick="if(event.target==this)this.classList.remove('open')"><div class="adminBox"><h3 style="color:#e50914">ADMIN TurboFlix</h3><p style="font-size:11px;color:#666" id="admStatus">Conectando...</p><input id="admUid" placeholder="Código ej: TB3X7A"><input id="admDays" type="number" placeholder="Días VIP 30 o -30"><button style="background:#e50914;color:#fff" onclick="TURBO_addVipDays(document.getElementById('admUid').value, parseInt(document.getElementById('admDays').value))">Poner/Quitar VIP</button><input id="admXp" type="number" placeholder="Nuevo XP ej: 500"><button style="background:#222;color:#fff" onclick="TURBO_editRanking(document.getElementById('admUid').value, parseInt(document.getElementById('admXp').value))">Editar Ranking</button><button style="background:#222;color:#fff" onclick="TURBO_listUsers()">Ver Usuarios</button><div id="admList" style="font-size:11px;background:#0f0f0f;padding:8px;border-radius:8px;max-height:120px;overflow:auto;color:#aaa"></div><button style="background:#333;color:#fff" onclick="document.getElementById('adminPanel').classList.remove('open')">Cerrar</button></div></div>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-const firebaseConfig = {apiKey:"AIzaSyAT682b1V_md_jrKCwdjLxVfsFLHQsRWoI",authDomain:"turboflix-e6c96.firebaseapp.com",projectId:"turboflix-e6c96",storageBucket:"turboflix-e6c96.firebasestorage.app",messagingSenderId:"220612126470",appId:"1:220612126470:web:fc98e6801e21e37eb3a087",measurementId:"G-N6H8TV12XF"};
-const appFB=initializeApp(firebaseConfig);const db=getFirestore(appFB);
-let deviceId=localStorage.getItem('turbo_device')||'dev_'+Math.random().toString(36).slice(2,9);localStorage.setItem('turbo_device',deviceId);
-let myCode=localStorage.getItem('turbo_mycode')||'TB'+Math.random().toString(36).toUpperCase().slice(2,7);localStorage.setItem('turbo_mycode',myCode);
-async function init(){let uid=localStorage.getItem('turbo_uid')||deviceId;try{const ref=doc(db,"users",uid);const snap=await getDoc(ref);if(!snap.exists()){await setDoc(ref,{uid,name:"Invitado",xp:0,level:1,myCode,vipUntil:null,myList:[],createdAt:serverTimestamp()});}localStorage.setItem('turbo_uid',uid);document.getElementById('admStatus').innerText="OK | Tu código: "+myCode;}catch(e){document.getElementById('admStatus').innerText="Error: "+e.message}}init();
-window.TURBO_addVipDays=async(t,d)=>{if(!t||isNaN(d))return alert("Falta código y días");try{let ref=doc(db,"users",t);let snap=await getDoc(ref);if(!snap.exists()){const q=query(collection(db,"users"),where("myCode","==",t.toUpperCase()));const qs=await getDocs(q);if(qs.empty)return alert("No encontrado");ref=qs.docs[0].ref;snap=qs.docs[0];}const cur=snap.data().vipUntil?new Date(snap.data().vipUntil):new Date();cur.setDate(cur.getDate()+d);await updateDoc(ref,{vipUntil:cur.toISOString()});alert("VIP hasta "+cur.toLocaleDateString());}catch(e){alert(e.message)}};
-window.TURBO_editRanking=async(t,xp)=>{if(!t||isNaN(xp))return alert("Falta");try{let ref=doc(db,"users",t);let snap=await getDoc(ref);if(!snap.exists()){const q=query(collection(db,"users"),where("myCode","==",t.toUpperCase()));const qs=await getDocs(q);if(qs.empty)return alert("No");ref=qs.docs[0].ref;}await updateDoc(ref,{xp,level:Math.floor(xp/100)+1});alert("XP "+xp);}catch(e){alert(e.message)}};
-window.TURBO_listUsers=async()=>{try{const qs=await getDocs(collection(db,"users"));document.getElementById('admList').innerHTML=qs.docs.map(d=>{const u=d.data();return `${u.myCode} | VIP:${u.vipUntil?new Date(u.vipUntil).toLocaleDateString():'No'} | XP:${u.xp||0}`}).join('<br>');}catch(e){alert(e.message)}};
-let taps=0,lastTap=0,buffer="";
-document.addEventListener('click',e=>{if(e.target.closest('header')||e.target.textContent.includes('TurboFlix')||e.target.className.includes('logo')){const now=Date.now();if(now-lastTap>3000)taps=0;lastTap=now;taps++;if(taps>=5){taps=0;const p=prompt("Clave ADMIN (5 toques logo):");if(p==="turbo2024")document.getElementById('adminPanel').classList.add('open');}}});
-document.addEventListener('keydown',e=>{buffer+=e.key.toLowerCase();if(buffer.length>20)buffer=buffer.slice(-20);if(buffer.includes("admin2024")){buffer="";const p=prompt("Clave ADMIN:");if(p==="turbo2024")document.getElementById('adminPanel').classList.add('open');}});
-fetch("https://raw.githubusercontent.com/mvrcorpglobal-ui/TurboFlix/main/data.json?t="+Date.now()).then(r=>r.json()).then(j=>{window.GITHUB_DATA=j;}).catch(()=>{});
-</script>   
+<!-- FIN ADMIN FINAL --> 
 </body>
 </html>
