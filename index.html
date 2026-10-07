@@ -4004,115 +4004,49 @@ toast(' Enlace copiado');
 }
 }
 </script>
- <!-- ADMIN FINAL ANDROID - FUNCIONA EN APPCREATOR24 -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+ <!-- ADMIN FIX - NO BLOQUEA SCROLL -->
 <style>
 #adminPanel{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:999999;display:none;place-items:center;padding:16px}
 #adminPanel.open{display:grid}
 .adminBox{background:#1a1a1a;border:2px solid #e50914;border-radius:16px;padding:16px;width:100%;max-width:380px}
-.adminBox input{width:100%;background:#000;border:1px solid #444;border-radius:8px;padding:12px;color:#fff;margin:6px 0;font-size:14px}
-.adminBox button{width:100%;padding:12px;border-radius:8px;border:none;font-weight:800;margin:6px 0;font-size:14px}
-#secretBtn{position:fixed;bottom:2px;left:2px;width:30px;height:30px;opacity:0.1;z-index:999998;background:red}
+.adminBox input{width:100%;background:#000;border:1px solid #444;border-radius:8px;padding:12px;color:#fff;margin:6px 0}
+.adminBox button{width:100%;padding:12px;border-radius:8px;border:none;font-weight:800;margin:6px 0}
 </style>
-
-<!-- Botón invisible abajo a la izquierda, toca 3 veces -->
-<div id="secretBtn"></div>
-
-<div id="adminPanel">
-  <div class="adminBox">
-    <h3 style="color:#e50914">ADMIN TurboFlix 🔥</h3>
-    <p id="admStatus" style="font-size:11px;color:#888">Cargando...</p>
-    <input id="admUid" placeholder="Código TBxxxx">
-    <input id="admDays" type="number" placeholder="Días VIP: 30 o -30 quitar">
-    <button style="background:#e50914;color:#fff" onclick="TURBO_addVipDays()">Poner/Quitar VIP $50</button>
-    <input id="admXp" type="number" placeholder="Nuevo XP: 500">
-    <button style="background:#333;color:#fff" onclick="TURBO_editRanking()">Editar Ranking</button>
-    <button style="background:#222;color:#fff" onclick="TURBO_listUsers()">Ver Usuarios</button>
-    <div id="admList" style="font-size:11px;background:#000;padding:8px;border-radius:8px;max-height:120px;overflow:auto;color:#aaa;margin-top:8px">...</div>
-    <button style="background:#000;color:#fff;border:1px solid #444" onclick="document.getElementById('adminPanel').classList.remove('open')">Cerrar</button>
-  </div>
-</div>
-
+<div id="adminPanel"><div class="adminBox"><h3 style="color:#e50914">ADMIN TurboFlix</h3><p id="admStatus" style="font-size:11px;color:#888">Listo</p><input id="admUid" placeholder="Código TBxxxx"><input id="admDays" type="number" placeholder="Días VIP 30 o -30"><button style="background:#e50914;color:#fff" onclick="TURBO_addVipDays()">Poner/Quitar VIP</button><input id="admXp" type="number" placeholder="XP"><button style="background:#333;color:#fff" onclick="TURBO_editRanking()">Editar Ranking</button><button style="background:#222;color:#fff" onclick="TURBO_listUsers()">Ver Usuarios</button><div id="admList" style="font-size:11px;background:#000;padding:8px;border-radius:8px;max-height:120px;overflow:auto;color:#aaa"></div><button style="background:#000;color:#fff;border:1px solid #444" onclick="document.getElementById('adminPanel').classList.remove('open')">Cerrar</button></div></div>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <script>
-// FIREBASE
-const firebaseConfig = {apiKey:"AIzaSyAT682b1V_md_jrKCwdjLxVfsFLHQsRWoI",authDomain:"turboflix-e6c96.firebaseapp.com",projectId:"turboflix-e6c96",storageBucket:"turboflix-e6c96.firebasestorage.app",messagingSenderId:"220612126470",appId:"1:220612126470:web:fc98e6801e21e37eb3a087"};
-firebase.initializeApp(firebaseConfig);
+const firebaseConfig = {apiKey:"AIzaSyAT682b1V_md_jrKCwdjLxVfsFLHQsRWoI",authDomain:"turboflix-e6c96.firebaseapp.com",projectId:"turboflix-e6c96"};
+try{firebase.initializeApp(firebaseConfig);}catch(e){}
 const db = firebase.firestore();
-let myCode = localStorage.getItem('turbo_mycode') || 'TB'+Math.random().toString(36).toUpperCase().slice(2,7);
-localStorage.setItem('turbo_mycode', myCode);
-let deviceId = localStorage.getItem('turbo_device') || 'dev_'+Math.random().toString(36).slice(2,9);
-localStorage.setItem('turbo_device', deviceId);
-let uid = localStorage.getItem('turbo_uid') || deviceId;
-localStorage.setItem('turbo_uid', uid);
-document.getElementById('admStatus').innerText = "Tu código: "+myCode+" | UID: "+uid;
-// Crear usuario si no existe
-db.collection("users").doc(uid).get().then(snap=>{
-  if(!snap.exists){ db.collection("users").doc(uid).set({uid:uid,myCode:myCode,xp:0,level:1,vipUntil:null,createdAt: firebase.firestore.FieldValue.serverTimestamp()}); }
-  document.getElementById('admStatus').innerText = "Conectado ✅ | Tu código: "+myCode;
-}).catch(e=>{document.getElementById('admStatus').innerText="Error Firestore: "+e.message+" (Pon reglas en modo prueba)"});
+let myCode=localStorage.getItem('turbo_mycode')||'TB'+Math.random().toString(36).toUpperCase().slice(2,7);localStorage.setItem('turbo_mycode',myCode);
+let uid=localStorage.getItem('turbo_uid')||'dev_'+Math.random().toString(36).slice(2,9);localStorage.setItem('turbo_uid',uid);
+try{document.getElementById('admStatus').innerText="Tu código: "+myCode;}catch(e){}
 
-window.TURBO_addVipDays = function(){
-  const target = document.getElementById('admUid').value.trim();
-  const days = parseInt(document.getElementById('admDays').value);
-  if(!target||isNaN(days)) return alert("Pon código y días");
-  db.collection("users").doc(target).get().then(snap=>{
-    if(!snap.exists()){
-      // buscar por myCode
-      return db.collection("users").where("myCode","==",target.toUpperCase()).get().then(qs=>{
-        if(qs.empty) throw "No encontrado";
-        return qs.docs[0];
-      });
+window.TURBO_addVipDays=function(){const t=document.getElementById('admUid').value.trim();const d=parseInt(document.getElementById('admDays').value);if(!t||isNaN(d))return alert("Falta");db.collection("users").where("myCode","==",t.toUpperCase()).get().then(qs=>{if(qs.empty)return db.collection("users").doc(t).get();return qs.docs[0]}).then(s=>{let ref=s.ref||db.collection("users").doc(t);let cur=s.data()&&s.data().vipUntil?new Date(s.data().vipUntil):new Date();cur.setDate(cur.getDate()+d);return ref.update({vipUntil:cur.toISOString()}).then(()=>alert("VIP hasta "+cur.toLocaleDateString()))}).catch(e=>{let cur=new Date();cur.setDate(cur.getDate()+d);db.collection("users").doc(t).set({myCode:t.toUpperCase(),vipUntil:cur.toISOString()},{merge:true}).then(()=>alert("Creado VIP hasta "+cur.toLocaleDateString()))})};
+window.TURBO_editRanking=function(){const t=document.getElementById('admUid').value.trim();const xp=parseInt(document.getElementById('admXp').value);if(!t||isNaN(xp))return alert("Falta");db.collection("users").where("myCode","==",t.toUpperCase()).get().then(qs=>{if(qs.empty)throw"No";return qs.docs[0]}).then(d=>d.ref.update({xp:xp,level:Math.floor(xp/100)+1})).then(()=>alert("OK")).catch(e=>alert(e))};
+window.TURBO_listUsers=function(){db.collection("users").limit(20).get().then(qs=>{let h="";qs.forEach(d=>{let u=d.data();h+=`${u.myCode||d.id} | ${u.vipUntil?new Date(u.vipUntil).toLocaleDateString():'No VIP'} | XP:${u.xp||0}<br>`});document.getElementById('admList').innerHTML=h||"Vacio"}).catch(e=>alert(e.message))};
+
+// SECRETO: MANTENER PRESIONADO EL LOGO TURBOFLIX 3 SEGUNDOS
+(function(){
+  let timer;
+  let header = document.querySelector('header') || document.body;
+  // Busca el texto TurboFlix
+  let logo = Array.from(document.querySelectorAll('*')).find(el=>el.textContent.trim()==='TurboFlix');
+  let target = logo || header;
+  if(target){
+    target.addEventListener('touchstart',function(){ timer=setTimeout(function(){ let p=prompt("Clave ADMIN:"); if(p==="turbo2024")document.getElementById('adminPanel').classList.add('open'); }, 2500); });
+    target.addEventListener('touchend',function(){ clearTimeout(timer); });
+    target.addEventListener('mousedown',function(){ timer=setTimeout(function(){ let p=prompt("Clave ADMIN:"); if(p==="turbo2024")document.getElementById('adminPanel').classList.add('open'); }, 2500); });
+    target.addEventListener('mouseup',function(){ clearTimeout(timer); });
+  }
+  // Respaldo: escribir admin2024 en el buscador global
+  document.addEventListener('input',function(e){
+    if(e.target.value && e.target.value.toLowerCase()==='admin2024'){
+      let p=prompt("Clave ADMIN:"); if(p==="turbo2024"){document.getElementById('adminPanel').classList.add('open'); e.target.value='';}
     }
-    return snap;
-  }).then(docSnap=>{
-    const data = docSnap.data();
-    const ref = docSnap.ref || db.collection("users").doc(target);
-    const cur = data.vipUntil ? new Date(data.vipUntil) : new Date();
-    cur.setDate(cur.getDate()+days);
-    return ref.update({vipUntil:cur.toISOString()}).then(()=>alert("✅ VIP hasta: "+cur.toLocaleDateString()));
-  }).catch(e=>alert("Error: "+e));
-};
-
-window.TURBO_editRanking = function(){
-  const target = document.getElementById('admUid').value.trim();
-  const xp = parseInt(document.getElementById('admXp').value);
-  if(!target||isNaN(xp)) return alert("Falta");
-  db.collection("users").doc(target).get().then(snap=>{
-    if(!snap.exists()) return db.collection("users").where("myCode","==",target.toUpperCase()).get().then(qs=>{if(qs.empty) throw "No"; return qs.docs[0];});
-    return snap;
-  }).then(d=>{ const ref=d.ref||db.collection("users").doc(target); return ref.update({xp:xp,level:Math.floor(xp/100)+1}); }).then(()=>alert("XP actualizado")).catch(e=>alert(e));
-};
-
-window.TURBO_listUsers = function(){
-  db.collection("users").limit(20).get().then(qs=>{
-    let html = "";
-    qs.forEach(doc=>{ const u=doc.data(); html+=`${u.myCode} | ${u.vipUntil?new Date(u.vipUntil).toLocaleDateString():'No VIP'} | XP:${u.xp||0}<br>`; });
-    document.getElementById('admList').innerHTML = html || "Sin usuarios";
   });
-};
-
-// SECRETO: 3 toques en esquina inferior izquierda + clave
-let secretTaps=0;
-document.getElementById('secretBtn').addEventListener('click',()=>{
-  secretTaps++;
-  if(secretTaps>=3){
-    secretTaps=0;
-    const p=prompt("Clave ADMIN:");
-    if(p==="turbo2024"){ document.getElementById('adminPanel').classList.add('open'); }
-    else if(p) alert("Clave incorrecta");
-  }
-  setTimeout(()=>{secretTaps=0},2000);
-});
-
-// TAMBIÉN: escribir admin2024 en cualquier input
-document.addEventListener('input',function(e){
-  if(e.target.tagName==='INPUT' && e.target.value.toLowerCase()==='admin2024'){
-    const p=prompt("Clave ADMIN:");
-    if(p==="turbo2024"){ document.getElementById('adminPanel').classList.add('open'); e.target.value=''; }
-  }
-});
-</script>
-<!-- FIN ADMIN FINAL --> 
+})();
+</script>   
 </body>
 </html>
