@@ -4004,49 +4004,48 @@ toast(' Enlace copiado');
 }
 }
 </script>
- <!-- ADMIN FIX - NO BLOQUEA SCROLL -->
+ <!-- ADMIN ULTRA MINIMO - SOLO PRUEBA -->
 <style>
-#adminPanel{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:999999;display:none;place-items:center;padding:16px}
-#adminPanel.open{display:grid}
-.adminBox{background:#1a1a1a;border:2px solid #e50914;border-radius:16px;padding:16px;width:100%;max-width:380px}
-.adminBox input{width:100%;background:#000;border:1px solid #444;border-radius:8px;padding:12px;color:#fff;margin:6px 0}
-.adminBox button{width:100%;padding:12px;border-radius:8px;border:none;font-weight:800;margin:6px 0}
+#adminPanel{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.95);z-index:999999;display:none}
+#adminPanel.open{display:flex;align-items:center;justify-content:center}
 </style>
-<div id="adminPanel"><div class="adminBox"><h3 style="color:#e50914">ADMIN TurboFlix</h3><p id="admStatus" style="font-size:11px;color:#888">Listo</p><input id="admUid" placeholder="Código TBxxxx"><input id="admDays" type="number" placeholder="Días VIP 30 o -30"><button style="background:#e50914;color:#fff" onclick="TURBO_addVipDays()">Poner/Quitar VIP</button><input id="admXp" type="number" placeholder="XP"><button style="background:#333;color:#fff" onclick="TURBO_editRanking()">Editar Ranking</button><button style="background:#222;color:#fff" onclick="TURBO_listUsers()">Ver Usuarios</button><div id="admList" style="font-size:11px;background:#000;padding:8px;border-radius:8px;max-height:120px;overflow:auto;color:#aaa"></div><button style="background:#000;color:#fff;border:1px solid #444" onclick="document.getElementById('adminPanel').classList.remove('open')">Cerrar</button></div></div>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<div id="adminPanel" style="padding:20px">
+  <div style="background:#111;border:2px solid red;border-radius:16px;padding:20px;width:100%;max-width:300px;text-align:center">
+    <h2 style="color:red">ADMIN OK</h2>
+    <p style="color:#888;font-size:12px">Si ves esto, ya funciona. Ahora le metemos Firebase.</p>
+    <button onclick="document.getElementById('adminPanel').classList.remove('open')" style="width:100%;padding:12px;background:#333;color:#fff;border-radius:8px;border:none;margin-top:10px">Cerrar</button>
+  </div>
+</div>
 <script>
-const firebaseConfig = {apiKey:"AIzaSyAT682b1V_md_jrKCwdjLxVfsFLHQsRWoI",authDomain:"turboflix-e6c96.firebaseapp.com",projectId:"turboflix-e6c96"};
-try{firebase.initializeApp(firebaseConfig);}catch(e){}
-const db = firebase.firestore();
-let myCode=localStorage.getItem('turbo_mycode')||'TB'+Math.random().toString(36).toUpperCase().slice(2,7);localStorage.setItem('turbo_mycode',myCode);
-let uid=localStorage.getItem('turbo_uid')||'dev_'+Math.random().toString(36).slice(2,9);localStorage.setItem('turbo_uid',uid);
-try{document.getElementById('admStatus').innerText="Tu código: "+myCode;}catch(e){}
-
-window.TURBO_addVipDays=function(){const t=document.getElementById('admUid').value.trim();const d=parseInt(document.getElementById('admDays').value);if(!t||isNaN(d))return alert("Falta");db.collection("users").where("myCode","==",t.toUpperCase()).get().then(qs=>{if(qs.empty)return db.collection("users").doc(t).get();return qs.docs[0]}).then(s=>{let ref=s.ref||db.collection("users").doc(t);let cur=s.data()&&s.data().vipUntil?new Date(s.data().vipUntil):new Date();cur.setDate(cur.getDate()+d);return ref.update({vipUntil:cur.toISOString()}).then(()=>alert("VIP hasta "+cur.toLocaleDateString()))}).catch(e=>{let cur=new Date();cur.setDate(cur.getDate()+d);db.collection("users").doc(t).set({myCode:t.toUpperCase(),vipUntil:cur.toISOString()},{merge:true}).then(()=>alert("Creado VIP hasta "+cur.toLocaleDateString()))})};
-window.TURBO_editRanking=function(){const t=document.getElementById('admUid').value.trim();const xp=parseInt(document.getElementById('admXp').value);if(!t||isNaN(xp))return alert("Falta");db.collection("users").where("myCode","==",t.toUpperCase()).get().then(qs=>{if(qs.empty)throw"No";return qs.docs[0]}).then(d=>d.ref.update({xp:xp,level:Math.floor(xp/100)+1})).then(()=>alert("OK")).catch(e=>alert(e))};
-window.TURBO_listUsers=function(){db.collection("users").limit(20).get().then(qs=>{let h="";qs.forEach(d=>{let u=d.data();h+=`${u.myCode||d.id} | ${u.vipUntil?new Date(u.vipUntil).toLocaleDateString():'No VIP'} | XP:${u.xp||0}<br>`});document.getElementById('admList').innerHTML=h||"Vacio"}).catch(e=>alert(e.message))};
-
-// SECRETO: MANTENER PRESIONADO EL LOGO TURBOFLIX 3 SEGUNDOS
 (function(){
-  let timer;
-  let header = document.querySelector('header') || document.body;
-  // Busca el texto TurboFlix
-  let logo = Array.from(document.querySelectorAll('*')).find(el=>el.textContent.trim()==='TurboFlix');
-  let target = logo || header;
-  if(target){
-    target.addEventListener('touchstart',function(){ timer=setTimeout(function(){ let p=prompt("Clave ADMIN:"); if(p==="turbo2024")document.getElementById('adminPanel').classList.add('open'); }, 2500); });
-    target.addEventListener('touchend',function(){ clearTimeout(timer); });
-    target.addEventListener('mousedown',function(){ timer=setTimeout(function(){ let p=prompt("Clave ADMIN:"); if(p==="turbo2024")document.getElementById('adminPanel').classList.add('open'); }, 2500); });
-    target.addEventListener('mouseup',function(){ clearTimeout(timer); });
+  console.log("ADMIN MINIMO CARGADO");
+  function openAdmin(){
+    var p=prompt("Clave ADMIN:");
+    if(p==="turbo2024"){document.getElementById('adminPanel').classList.add('open');}
+    else if(p!==null){alert("Clave mala");}
   }
-  // Respaldo: escribir admin2024 en el buscador global
-  document.addEventListener('input',function(e){
-    if(e.target.value && e.target.value.toLowerCase()==='admin2024'){
-      let p=prompt("Clave ADMIN:"); if(p==="turbo2024"){document.getElementById('adminPanel').classList.add('open'); e.target.value='';}
+  // 3 SEGUNDOS PRESIONADO EN TURBOFLIX
+  setTimeout(function(){
+    var logo=null;
+    var all=document.querySelectorAll('*');
+    for(var i=0;i<all.length;i++){ if(all[i].textContent.trim()==='TurboFlix'){ logo=all[i]; break; } }
+    if(!logo){ logo=document.querySelector('header') || document.body; }
+    var timer;
+    logo.addEventListener('touchstart', function(){ timer=setTimeout(openAdmin, 2500); }, {passive:true});
+    logo.addEventListener('touchend', function(){ clearTimeout(timer); });
+    logo.addEventListener('mousedown', function(){ timer=setTimeout(openAdmin, 2500); });
+    logo.addEventListener('mouseup', function(){ clearTimeout(timer); });
+    console.log("Logo para admin:", logo);
+  }, 1500);
+
+  // Si escribes admin2024 en buscador
+  document.addEventListener('input', function(e){
+    if(e.target.tagName==='INPUT' && e.target.value.toLowerCase()==='admin2024'){
+      e.target.value='';
+      openAdmin();
     }
   });
 })();
-</script>   
+</script>  
 </body>
 </html>
